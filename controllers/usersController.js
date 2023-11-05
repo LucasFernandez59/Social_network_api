@@ -3,7 +3,7 @@ const { User} = require('../models');
 module.exports = {
     async getUsers(req, res) {
         try {
-            const users = await User.find();
+            const users = await User.find().select('-__V').populate('thoughts');
             res.json(users);
         } catch (err) {
             console.log(err);
@@ -36,13 +36,14 @@ module.exports = {
     async updateUser(req, res) {
         try {
             const updatedUser = await User.findByIdAndUpdate(
-                req.params.userId,
+                { _id: req.params.userId},
                 { username: req.body.username},
                 { new: true}
             );
         if (!updatedUser) {
             return res.status(404).json({ message: 'No user with that ID' })
         }
+        console.log({updatedUser}); 
         res.json({updatedUser});
         } catch (err) {
             console.log(err);
@@ -63,12 +64,11 @@ module.exports = {
     
     },
     async addFriend(req, res) {
-        try {
-            const {userId, friendId} = req.params;
+        try { 
             const user = await User.findByIdAndUpdate(
-                userId,
-                { $addToSet: { friends: friendId }},
-                { new: true }
+                { _id: req.params.userId},
+                { $addToSet: { friends: req.params.friendId }},
+                { runValidators: true, new: true }
             );
         if (!user) {
             return res.status(404).json({ message: 'No user with that ID' });
@@ -81,10 +81,10 @@ module.exports = {
     },
     async removeFriend(req, res) {
         try {
-            const user = await User.findByIdAndUpdate(
-                userId,
-                { $pull: { friends: friendId }},
-                { new: true }
+            const user = await User.findOneAndUpdate(
+                {_id: req.params.userId},
+                { $pull: { friends: {friendId: req.params.friendId} }},
+                { runValidators: true, new: true }
             );
         if (!user) {
             return res.status(404).json({ message: 'No user with that ID' });
