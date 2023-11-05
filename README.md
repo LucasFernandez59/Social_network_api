@@ -14,7 +14,7 @@
 
   ## Installation
   <a id="installation"></a>
-  n/a
+  https://drive.google.com/file/d/1xf-nDYqb--UlpsPey_cXrAHKkUoW7teK/view
 
   ## Usage
   <a id="usage"></a>
